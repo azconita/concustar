@@ -1,0 +1,7 @@
+[package]
+name = "concustar"
+version = "0.1.0"
+authors = ["azconita <gabriela.azcona@despegar.com>"]
+
+[dependencies]
+log = { version = "0.4", features = ["std", "serde"] }
