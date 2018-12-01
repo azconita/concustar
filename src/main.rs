@@ -1,15 +1,23 @@
 extern crate log;
 
+use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc;
+use std::thread;
+use std::sync::{Arc, Mutex};
 
-struct Telescope {
-    velocity_of_shooting: f64,
-    number_of_quadrants: u16,
-}
+mod observatory;
+mod images;
+mod telescope;
+mod server;
 
-struct Server {
-    velocity_of_processing: f64,
-}
+use observatory::Observatory;
 
 fn main() {
-
+    let observatory = Observatory::new(2.0, 4);
+    let (tx1, rx1) = mpsc::channel();
+    let (tx2, rx2) = mpsc::channel();
+    thread::spawn(move|| observatory.run(tx1, rx2));
+    let dato = rx1.recv().unwrap();
+    tx2.send(2).unwrap();
+    println!("main {:?}", dato);
 }
