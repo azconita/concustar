@@ -2,7 +2,7 @@ extern crate log;
 
 //use std::vec;
 use telescope::Telescope;
-use images::Images;
+use images::{Images,Results};
 //use server::Server;
 use std::sync::mpsc::{Sender, Receiver};
 
@@ -19,8 +19,8 @@ impl Observatory {
         }
     }
 
-    pub fn run(&self, rx: Receiver<u16>) {
-        let mut rx_ref = &rx;
+    pub fn run(&self, rx: Receiver<Results>) {
+        let rx_ref = &rx;
         loop {
             let images : Images = self.telescope.take_images();
             self.send_images_to_servers(images);
@@ -29,14 +29,14 @@ impl Observatory {
     }
 
     fn send_images_to_servers(&self, images: Images) {
-        let i = images;
-        for tx in self.servers {
+        for tx in self.servers.clone() {
+            let i = Images { im: images.im, obs_id: images.obs_id };
             tx.send(i).unwrap();
         }
     }
 
-    fn receive_responses_from_servers(&self, rx: &Receiver<u16>) {
+    fn receive_responses_from_servers(&self, rx: &Receiver<Results>) {
         let dato = rx.recv().unwrap();
-        println!("{:?}", dato);
+        println!("dato  {:?}", dato.found);
     }
 }
