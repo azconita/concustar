@@ -20,6 +20,7 @@ impl Server {
         let mut rx_ref = &rx;
         loop {
             let images = self.receive_request(rx_ref);
+            println!("{:?}", images.im);
             self.send_results(images.obs_id);
         }
     }
