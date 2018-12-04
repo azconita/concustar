@@ -1,6 +1,6 @@
 extern crate log;
 
-//use std::vec;
+use std::time::Instant;
 use telescope::Telescope;
 use images::{Images,Results};
 //use server::Server;
@@ -13,7 +13,6 @@ pub struct Observatory {
 }
 
 impl Observatory {
-    //pub fn new(vel: f64, quads: u16, id: u16, srvs: Vec<Sender<Images>>) -> Observatory {
     pub fn new(mut config: Vec<f64>, id: u16, srvs: Vec<Sender<Images>>) -> Observatory {
         let v = config.remove(0);
         let q = config.remove(0);
@@ -29,8 +28,10 @@ impl Observatory {
         let rx_ref = &rx;
         loop {
             let images : Vec<Images> = self.telescope.take_images();
+            let now = Instant::now();
             self.send_images_to_servers(images);
             self.receive_responses_from_servers(rx_ref);
+            println!("Obs {}: Request time {:?}", self.id, now.elapsed());
         }
     }
 

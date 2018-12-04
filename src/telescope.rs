@@ -1,5 +1,6 @@
 extern crate log;
 
+use std::{thread,time};
 use images::Images;
 
 pub struct Telescope {
@@ -24,10 +25,13 @@ impl Telescope {
         let mut v = Vec::with_capacity(self.number_of_quadrants as usize);
         let mut id = 0;
         //sleep velocity_of_shooting secs!
+        let secs = time::Duration::from_millis(1000*self.velocity_of_shooting as u64);
+        println!("Telescope {} sleeping {:?}", self.id, secs);
+        thread::sleep(secs);
         for total_quads in self.quads_division.clone() {
             v.push(Images {
                 srv_id : id,
-                quads : total_quads as u16,
+                quads : total_quads as u64,
                 obs_id : self.id,
             });
             id += 1;

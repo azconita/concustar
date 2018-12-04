@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
+use std::{thread,time};
 
 use images::{Images,Results};
 
@@ -22,12 +23,19 @@ impl Server {
     pub fn run(&self, rx: Receiver<Images>) {
         let mut rx_ref = &rx;
         loop {
-            print!("Server {} about to receive...", self.id);
+            println!("Server {} about to receive...", self.id);
             let images = self.receive_request(rx_ref);
             println!("Server {} received {:?}", self.id, images.quads);
             //sleeps velocity_of_processing secs!
+            self.process_quads(images.quads);
             self.send_results(images.obs_id);
         }
+    }
+
+    fn process_quads(&self, q: u64) {
+        let secs = time::Duration::from_millis(1000 * self.velocity_of_processing  as u64 * q);
+        println!("Server {} sleeping {:?}", self.id, secs);
+        thread::sleep(secs);
     }
 
     fn receive_request(&self, rx: &Receiver<Images>) -> Images {

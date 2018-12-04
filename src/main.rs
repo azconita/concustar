@@ -50,8 +50,8 @@ fn main() {
         thread::spawn(move|| server.run(rx));
         id += 1;
     }
-    let ten_millis = time::Duration::from_millis(10);
-    thread::sleep(ten_millis);
+    let ten_secs = time::Duration::from_secs(5);
+    thread::sleep(ten_secs);
 }
 
 fn create_observatories(txs: Vec<Sender<Images>>,
