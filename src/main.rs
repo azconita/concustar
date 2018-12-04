@@ -72,10 +72,8 @@ fn create_servers(txs: HashMap<u16, Sender<Results>>,
 
     let mut servers = Vec::with_capacity(total_srv as usize);
     for i in 0..total_srv {
-        println!("create server");
         servers.push(Server::new(i, server_velocities[i as usize], txs.clone()));
     }
-    println!("{:?}", servers.capacity());
     servers
 }
 
@@ -83,7 +81,6 @@ fn create_servers(txs: HashMap<u16, Sender<Results>>,
 fn init_img_channels(total_srv: u16) -> (Vec<Sender<Images>>, Vec<Receiver<Images>>) {
     let mut txs = Vec::with_capacity(total_srv as usize);
     let mut rxs = Vec::with_capacity(total_srv as usize);
-    println!("{:?}", rxs.capacity());
     for _ in 0..total_srv {
         let (tx, rx) = mpsc::channel();
         txs.push(tx);

@@ -1,6 +1,7 @@
 
 pub struct Images {
-    pub im: u16,
+    pub srv_id: u16,
+    pub quads: u16,
     pub obs_id: u16,
 }
 

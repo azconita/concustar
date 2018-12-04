@@ -11,6 +11,7 @@ pub struct Server {
 
 impl Server {
     pub fn new(id: u16, vel: f64, map: HashMap<u16,Sender<Results>>) -> Server {
+        println!("Server created: id: {} vel: {:?}", id, vel);
         Server {
             id: id,
             velocity_of_processing : vel,
@@ -20,12 +21,13 @@ impl Server {
 
     pub fn run(&self, rx: Receiver<Images>) {
         let mut rx_ref = &rx;
-        //loop {
-        //    let images = self.receive_request(rx_ref);
-        //    println!("{:?}", images.im);
-        //    self.send_results(images.obs_id);
-        //}
-        println!("{} {:?}", self.id, self.velocity_of_processing);
+        loop {
+            print!("Server {} about to receive...", self.id);
+            let images = self.receive_request(rx_ref);
+            println!("Server {} received {:?}", self.id, images.quads);
+            //sleeps velocity_of_processing secs!
+            self.send_results(images.obs_id);
+        }
     }
 
     fn receive_request(&self, rx: &Receiver<Images>) -> Images {
