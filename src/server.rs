@@ -12,7 +12,7 @@ pub struct Server {
 
 impl Server {
     pub fn new(id: u16, vel: f64, map: HashMap<u16,Sender<Results>>) -> Server {
-        println!("Server created: id: {} vel: {:?}", id, vel);
+        info!("Server created: id: {} vel: {:?}", id, vel);
         Server {
             id: id,
             velocity_of_processing : vel,
@@ -23,9 +23,9 @@ impl Server {
     pub fn run(&self, rx: Receiver<Images>) {
         let mut rx_ref = &rx;
         loop {
-            println!("Server {} about to receive...", self.id);
+            info!("Server {} about to receive...", self.id);
             let images = self.receive_request(rx_ref);
-            println!("Server {} received {:?}", self.id, images.quads);
+            info!("Server {} received {:?}", self.id, images.quads);
             //sleeps velocity_of_processing secs!
             self.process_quads(images.quads);
             self.send_results(images.obs_id);
@@ -34,7 +34,7 @@ impl Server {
 
     fn process_quads(&self, q: u64) {
         let secs = time::Duration::from_millis(1000 * self.velocity_of_processing  as u64 * q);
-        println!("Server {} sleeping {:?}", self.id, secs);
+        info!("Server {} sleeping {:?}", self.id, secs);
         thread::sleep(secs);
     }
 
