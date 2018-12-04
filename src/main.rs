@@ -11,35 +11,42 @@ mod observatory;
 mod images;
 mod telescope;
 mod server;
+mod parser;
 
 use observatory::Observatory;
 use images::{Images,Results};
 use server::Server;
+use parser::{get_speeds, get_observatories};
 
-const TOTAL_OBS: u16 = 1;
-const TOTAL_SRV: u16 = 1;
+//const TOTAL_OBS: u16 = 2;
+//const TOTAL_SRV: u16 = 2;
 
 fn main() {
     info!("New run");
+    //read config
+    let server_velocities: Vec<f64> = get_speeds();
+    let observatories_config: Vec<Vec<f64>> = get_observatories();
+    let TOTAL_OBS = observatories_config.len() as u16;
+    let TOTAL_SRV = server_velocities.len() as u16;
+
     //create channels
-    let (txs_res, mut rxs_res) = init_res_channels(TOTAL_SRV);
-    let (txs_img, mut rxs_img) = init_img_channels(TOTAL_OBS);
+    let (txs_res, mut rxs_res) = init_res_channels(TOTAL_OBS);
+    let (txs_img, mut rxs_img) = init_img_channels(TOTAL_SRV);
 
     //create structs for threads
-    //let rxs_img_ref = &rxs_img;
-    let observatories = create_observatories(txs_img, TOTAL_SRV, TOTAL_OBS);
-    let servers = create_servers(txs_res, TOTAL_SRV, TOTAL_OBS);
+    let observatories = create_observatories(txs_img, TOTAL_OBS, observatories_config);
+    let servers = create_servers(txs_res, TOTAL_SRV, server_velocities);
 
     //spawn threads
     let mut id = 0;
     for observatory in observatories {
-        let rx = rxs_res.remove(id);
+        let rx = rxs_res.pop().unwrap();
         thread::spawn(move|| observatory.run(rx));
         id += 1;
     }
     id = 0;
     for server in servers {
-        let rx = rxs_img.remove(id);
+        let rx = rxs_img.pop().unwrap();
         thread::spawn(move|| server.run(rx));
         id += 1;
     }
@@ -48,31 +55,35 @@ fn main() {
 }
 
 fn create_observatories(txs: Vec<Sender<Images>>,
-                        total_srv: u16,
-                        total_obs: u16) -> Vec<Observatory> {
+                        total_obs: u16,
+                        observatories_config: Vec<Vec<f64>>) -> Vec<Observatory> {
 
-    let mut observatories = Vec::new();
+    let mut observatories = Vec::with_capacity(total_obs as usize);
     for id in 0..total_obs {
-        observatories.push(Observatory::new(2.0, 4, id, txs.clone()));
+        let mut config = observatories_config[id as usize].clone();
+        observatories.push(Observatory::new(config, id, txs.clone()));
     }
     observatories
 }
 
 fn create_servers(txs: HashMap<u16, Sender<Results>>,
                   total_srv: u16,
-                  total_obs: u16) -> Vec<Server> {
+                  server_velocities: Vec<f64>) -> Vec<Server> {
 
-    let mut servers = Vec::new();
-    for _ in 0..total_srv {
-        servers.push(Server::new(1.0, txs.clone()));
+    let mut servers = Vec::with_capacity(total_srv as usize);
+    for i in 0..total_srv {
+        println!("create server");
+        servers.push(Server::new(i, server_velocities[i as usize], txs.clone()));
     }
+    println!("{:?}", servers.capacity());
     servers
 }
 
 
 fn init_img_channels(total_srv: u16) -> (Vec<Sender<Images>>, Vec<Receiver<Images>>) {
-    let mut txs = Vec::new();
-    let mut rxs = Vec::new();
+    let mut txs = Vec::with_capacity(total_srv as usize);
+    let mut rxs = Vec::with_capacity(total_srv as usize);
+    println!("{:?}", rxs.capacity());
     for _ in 0..total_srv {
         let (tx, rx) = mpsc::channel();
         txs.push(tx);
@@ -83,7 +94,7 @@ fn init_img_channels(total_srv: u16) -> (Vec<Sender<Images>>, Vec<Receiver<Image
 
 fn init_res_channels(total_obs: u16) -> (HashMap<u16, Sender<Results>>, Vec<Receiver<Results>>) {
     let mut map = HashMap::new();
-    let mut rxs = Vec::new();
+    let mut rxs = Vec::with_capacity(total_obs as usize);
     for o in 0..total_obs {
         let (tx, rx) = mpsc::channel();
         rxs.push(rx);
