@@ -11,7 +11,7 @@ pub fn init_logger(){
     CombinedLogger::init(
         vec![
             TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
-            WriteLogger::new(LevelFilter::Info, Config::default(), options.open("logfile.txt").unwrap()),
+            WriteLogger::new(LevelFilter::Info, Config::default(), options.open("src/logfile.txt").unwrap()),
         ]
     ).unwrap();
 }
