@@ -5,3 +5,5 @@ authors = ["azconita <gabriela.azcona@despegar.com>"]
 
 [dependencies]
 log = { version = "0.4", features = ["std", "serde"] }
+simplelog = "^0.5.0"
+

@@ -12,7 +12,7 @@ pub struct Telescope {
 
 impl Telescope {
     pub fn new(vel: f64, quads: u16, id: u16, quads_division: Vec<f64>) -> Telescope {
-        println!("Telescope created: id {} vel: {} quads: {}", id, vel, quads);
+        info!("Telescope created: id {} vel: {} quads: {}", id, vel, quads);
 
         Telescope {
             velocity_of_shooting: vel,
@@ -26,7 +26,7 @@ impl Telescope {
         let mut id = 0;
         //sleep velocity_of_shooting secs!
         let secs = time::Duration::from_millis(1000*self.velocity_of_shooting as u64);
-        println!("Telescope {} sleeping {:?}", self.id, secs);
+        info!("Telescope {} sleeping {:?}", self.id, secs);
         thread::sleep(secs);
         for total_quads in self.quads_division.clone() {
             v.push(Images {
