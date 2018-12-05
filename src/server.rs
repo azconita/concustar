@@ -7,7 +7,7 @@ use images::{Images,Results};
 pub struct Server {
     id: u16,
     velocity_of_processing: f64,
-    observatorys : HashMap<u16,Sender<Results>>,
+    observatories : HashMap<u16,Sender<Results>>,
 }
 
 impl Server {
@@ -16,7 +16,7 @@ impl Server {
         Server {
             id: id,
             velocity_of_processing : vel,
-            observatorys : map,
+            observatories : map,
         }
     }
 
@@ -44,6 +44,6 @@ impl Server {
     }
 
     fn send_results(&self, id : u16) {
-        self.observatorys[&id].send(Results{found : 0, srv_id: self.id}).unwrap();
+        self.observatories[&id].send(Results{found : 0, srv_id: self.id}).unwrap();
     }
 }

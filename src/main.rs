@@ -5,7 +5,6 @@ extern crate simplelog;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
 use std::{thread,time};
-//use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 
 mod observatory;
@@ -20,9 +19,6 @@ use images::{Images,Results};
 use server::Server;
 use parser::{get_speeds, get_observatories};
 use logger::init_logger;
-
-//const TOTAL_OBS: u16 = 2;
-//const TOTAL_SRV: u16 = 2;
 
 fn main() {
     init_logger();
