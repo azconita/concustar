@@ -7,4 +7,5 @@ pub struct Images {
 
 pub struct Results {
     pub found: u16,
+    pub srv_id: u16,
 }

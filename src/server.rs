@@ -21,7 +21,7 @@ impl Server {
     }
 
     pub fn run(&self, rx: Receiver<Images>) {
-        let mut rx_ref = &rx;
+        let rx_ref = &rx;
         loop {
             info!("Server {} about to receive...", self.id);
             let images = self.receive_request(rx_ref);
@@ -36,6 +36,7 @@ impl Server {
         let secs = time::Duration::from_millis(1000 * self.velocity_of_processing  as u64 * q);
         info!("Server {} sleeping {:?}", self.id, secs);
         thread::sleep(secs);
+        info!("Server {} ends sleeping", self.id);
     }
 
     fn receive_request(&self, rx: &Receiver<Images>) -> Images {
@@ -43,6 +44,6 @@ impl Server {
     }
 
     fn send_results(&self, id : u16) {
-        self.observatorys[&id].send(Results{found : 0}).unwrap();
+        self.observatorys[&id].send(Results{found : 0, srv_id: self.id}).unwrap();
     }
 }

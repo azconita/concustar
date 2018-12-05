@@ -30,31 +30,27 @@ fn main() {
     //read config
     let server_velocities: Vec<f64> = get_speeds();
     let observatories_config: Vec<Vec<f64>> = get_observatories();
-    let TOTAL_OBS = observatories_config.len() as u16;
-    let TOTAL_SRV = server_velocities.len() as u16;
+    let total_obs = observatories_config.len() as u16;
+    let total_srv = server_velocities.len() as u16;
 
     //create channels
-    let (txs_res, mut rxs_res) = init_res_channels(TOTAL_OBS);
-    let (txs_img, mut rxs_img) = init_img_channels(TOTAL_SRV);
+    let (txs_res, mut rxs_res) = init_res_channels(total_obs);
+    let (txs_img, mut rxs_img) = init_img_channels(total_srv);
 
     //create structs for threads
-    let observatories = create_observatories(txs_img, TOTAL_OBS, observatories_config);
-    let servers = create_servers(txs_res, TOTAL_SRV, server_velocities);
+    let observatories = create_observatories(txs_img, total_obs, observatories_config);
+    let servers = create_servers(txs_res, total_srv, server_velocities);
 
     //spawn threads
-    let mut id = 0;
     for observatory in observatories {
         let rx = rxs_res.pop().unwrap();
         thread::spawn(move|| observatory.run(rx));
-        id += 1;
     }
-    id = 0;
     for server in servers {
         let rx = rxs_img.pop().unwrap();
         thread::spawn(move|| server.run(rx));
-        id += 1;
     }
-    let ten_secs = time::Duration::from_secs(5);
+    let ten_secs = time::Duration::from_secs(60);
     thread::sleep(ten_secs);
 }
 
